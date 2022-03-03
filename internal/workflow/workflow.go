@@ -1,12 +1,13 @@
 package workflow
 
 import (
+	"context"
 	"strings"
 
 	"github.com/mmuoDev/transactions/internal/db"
 	"github.com/mmuoDev/transactions/pkg"
-	"github.com/pkg/errors"
 	"github.com/mmuoDev/wallet/gen/wallet"
+	"github.com/pkg/errors"
 )
 
 //InsertTransactionFunc provides functionality to insert transaction
@@ -23,8 +24,15 @@ func InsertTransaction(addTransaction db.InsertTransactionFunc, walletClient wal
 		if err != nil {
 			return errors.Wrap(err, "workflow - unable to insert transaction")
 		}
-		//update wallet 
-		
+		//create wallet 
+		createWallet := &wallet.CreateWalletRequest{
+			AccountId: req.AccountID,
+			PreviousBalance: 0,
+			CurrentBalance: 0,
+		}
+		if _, err := walletClient.CreateWallet(context.Background(), createWallet); err != nil {
+			//
+		}
 		return nil
 	}
 }
