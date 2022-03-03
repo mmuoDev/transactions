@@ -9,4 +9,5 @@ require (
 	github.com/mmuoDev/wallet v0.0.0-20220303112346-a8eb69019d84
 	github.com/pkg/errors v0.9.1
 	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 )
