@@ -8,7 +8,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 )
 
@@ -28,10 +28,11 @@ type Connector struct {
 
 //NewConnector creates a connector to postgres
 func NewConnector(cfg Config) (*Connector, error) {
-	connStr := fmt.Sprintf("host=%s port=%s user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName)
-	db, err := sql.Open("postgres", connStr)
+	connStr := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/test", cfg.Username, cfg.Password)
+	// connStr := fmt.Sprintf("host=%s port=%s user=%s "+
+	// 	"password=%s dbname=%s sslmode=disable",
+	// 	cfg.Host, cfg.Port, cfg.Username, cfg.Password, cfg.DBName)
+	db, err := sql.Open("mysql", connStr)
 	if err != nil {
 		return &Connector{}, err
 	}

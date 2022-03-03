@@ -1,8 +1,8 @@
-create table transactions(
+create table wallet(
    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-   amount int,
+   previous_balance int,
+   current_balance int,
    account_id int UNIQUE,
-   category INT,
    created_at timestamp default CURRENT_TIMESTAMP, 
    updated_at timestamp default CURRENT_TIMESTAMP
 );

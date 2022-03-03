@@ -12,6 +12,9 @@ const (
 //InsertTransactionFunc provides a functionality to insert data into table
 type InsertTransactionFunc func(data map[string]interface{}) (int64, error)
 
+//AddWalletFunc provides a functionality to create a wallet
+type AddWalletFunc func(data map[string]interface{}) error
+
 //InsertTransaction inserts a transaction in a table
 func InsertTransaction(dbConnector pg.Connector) InsertTransactionFunc {
 	return func(data map[string]interface{}) (int64, error) {
@@ -22,3 +25,4 @@ func InsertTransaction(dbConnector pg.Connector) InsertTransactionFunc {
 		return id, nil
 	}
 }
+
