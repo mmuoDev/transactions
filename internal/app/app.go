@@ -35,6 +35,7 @@ type OptionalArgs struct {
 func New(dbConnector *pg.Connector, grpcClient grpc.ClientConnInterface, options ...Options) App {
 	o := OptionalArgs{
 		InsertTransaction: db.InsertTransaction(*dbConnector),
+		WalletClient: wallet.NewWalletClient(grpcClient),
 	}
 	for _, option := range options {
 		option(&o)

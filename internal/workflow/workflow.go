@@ -3,13 +3,11 @@ package workflow
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/mmuoDev/transactions/internal/db"
 	"github.com/mmuoDev/transactions/pkg"
 	"github.com/mmuoDev/wallet/gen/wallet"
 	"github.com/pkg/errors"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 //InsertTransactionFunc provides functionality to insert transaction
@@ -26,16 +24,34 @@ func InsertTransaction(addTransaction db.InsertTransactionFunc, walletClient wal
 		if err != nil {
 			return errors.Wrap(err, "workflow - unable to insert transaction")
 		}
-		//create wallet
-		createWallet := &wallet.CreateWalletRequest{
-			AccountId:       req.AccountID,
-			PreviousBalance: 0,
-			CurrentBalance:  0,
-			CreatedAt:       timestamppb.New(time.Now()),
-			UpdatedAt:       timestamppb.New(time.Now()),
+		//check if wallet exists else create
+		retrieve := &wallet.RetrieveWalletRequest{
+			AccountId: req.AccountID,
 		}
-		if _, err := walletClient.CreateWallet(context.Background(), createWallet); err != nil {
-			return errors.Wrap(err, "unable to create wallet")
+		w, err := walletClient.RetrieveWallet(context.Background(), retrieve)
+		if err != nil {
+			createWallet := &wallet.CreateWalletRequest{
+				AccountId:       req.AccountID,
+				PreviousBalance: 0,
+				CurrentBalance:  0,
+			}
+			if _, err := walletClient.CreateWallet(context.Background(), createWallet); err != nil {
+				return errors.Wrap(err, "unable to create wallet")
+			}
+		}
+		curBalance := w.CurrentBalance
+		category := getCategory(req.Category)
+		newBalance := curBalance + req.Amount
+		if category == 0 {
+			newBalance = curBalance - req.Amount
+		}
+		update := &wallet.UpdateWalletRequest{
+			AccountId:       req.AccountID,
+			PreviousBalance: curBalance,
+			CurrentBalance:  newBalance,
+		}
+		if _, err := walletClient.UpdateWallet(context.Background(), update); err != nil {
+			return errors.Wrap(err, "unable to update wallet")
 		}
 		return nil
 	}
