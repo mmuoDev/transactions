@@ -4,6 +4,9 @@ SERVICE_NAME = transactions
 build-local:
 	go build -o $(OUTPUT) ./cmd/$(SERVICE_NAME)/main.go
 
+test:
+	go test ./...
+
 run: build-local
 	@echo ">> Running application ..."
 	DB_PORT=3306 \
