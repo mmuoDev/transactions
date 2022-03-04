@@ -35,12 +35,12 @@ type OptionalArgs struct {
 func New(dbConnector *pg.Connector, grpcClient grpc.ClientConnInterface, options ...Options) App {
 	o := OptionalArgs{
 		InsertTransaction: db.InsertTransaction(*dbConnector),
-		WalletClient: wallet.NewWalletClient(grpcClient),
+		WalletClient:      wallet.NewWalletClient(grpcClient),
 	}
 	for _, option := range options {
 		option(&o)
 	}
-	insertTransaction := InsertTransactionHandler (o.InsertTransaction, o.WalletClient)
+	insertTransaction := InsertTransactionHandler(o.InsertTransaction, o.WalletClient)
 	return App{
 		InsertTransactionHandler: insertTransaction,
 	}
