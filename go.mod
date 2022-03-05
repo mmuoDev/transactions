@@ -4,9 +4,11 @@ go 1.16
 
 require (
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang-migrate/migrate v3.5.4+incompatible
+	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.4
-	github.com/mmuoDev/wallet v0.0.0-20220304135821-c25a2969386f
+	github.com/mmuoDev/core-proto v0.0.0-20220305145835-a34d1e78d14a
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect

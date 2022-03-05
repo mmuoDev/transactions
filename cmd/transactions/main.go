@@ -7,8 +7,10 @@ import (
 	"os"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/mmuoDev/transactions/internal/app"
 	pg "github.com/mmuoDev/transactions/pkg/postgres"
+	"github.com/mmuoDev/transactions/internal/db"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/backoff"
 )
@@ -23,7 +25,8 @@ func getGRPCAddress() string {
 	return defaultServerAddress
 }
 
-func main() {
+//getPostgreConfig returns postgres conn configs
+func getPostgreConfig() pg.Config {
 	cfg := pg.Config{
 		Host:     os.Getenv("DB_HOST"),
 		Port:     os.Getenv("DB_PORT"),
@@ -31,7 +34,20 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 		DBName:   os.Getenv("DB_NAME"),
 	}
-	dbConn, err := pg.NewConnector(cfg)
+	return cfg
+}
+
+//migratePostgre migrates postgres migrations
+func migratePostgre(dbConn *pg.Connector) {
+	driver, err := postgres.WithInstance(dbConn.DB, &postgres.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect with error %s", err)
+	}
+	db.MigrateDB(dbConn.DB, driver, "postgre")
+}
+
+func main() {
+	dbConn, err := pg.NewConnector(getPostgreConfig())
 	if err != nil {
 		log.Fatal(err)
 	}

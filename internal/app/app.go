@@ -6,7 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/mmuoDev/transactions/internal/db"
 	pg "github.com/mmuoDev/transactions/pkg/postgres"
-	"github.com/mmuoDev/wallet/gen/wallet"
+	"github.com/mmuoDev/core-proto/gen/wallet"
 	"google.golang.org/grpc"
 )
 

@@ -14,9 +14,10 @@ import (
 	"path/filepath"
 	"testing"
 
+	pb "github.com/mmuoDev/core-proto/gen/wallet"
+	"github.com/mmuoDev/transactions/internal"
 	"github.com/mmuoDev/transactions/internal/app"
 	pg "github.com/mmuoDev/transactions/pkg/postgres"
-	pb "github.com/mmuoDev/wallet/gen/wallet"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -33,12 +34,12 @@ func mockGrpcClient() grpc.ClientConnInterface {
 }
 
 type mockWalletClient struct {
-	createWallet   func(context.Context, *pb.CreateWalletRequest, ...grpc.CallOption) (*emptypb.Empty, error)
+	createWallet   func(context.Context, *pb.CreateWalletRequest, ...grpc.CallOption) (*pb.CreateWalletResponse, error)
 	updateWallet   func(context.Context, *pb.UpdateWalletRequest, ...grpc.CallOption) (*emptypb.Empty, error)
 	retrieveWallet func(context.Context, *pb.RetrieveWalletRequest, ...grpc.CallOption) (*pb.RetrieveWalletResponse, error)
 }
 
-func (m *mockWalletClient) CreateWallet(ctx context.Context, in *pb.CreateWalletRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (m *mockWalletClient) CreateWallet(ctx context.Context, in *pb.CreateWalletRequest, opts ...grpc.CallOption) (*pb.CreateWalletResponse, error) {
 	if m.createWallet != nil {
 		return m.createWallet(ctx, in, opts...)
 	}
@@ -69,12 +70,12 @@ func TestInsertTransactionWorksAsExpected(t *testing.T) {
 	isWalletCreateInvoked := false
 
 	mockDbInsert := func(o *app.OptionalArgs) {
-		o.InsertTransaction = func(data map[string]interface{}) (int64, error) {
+		o.InsertTransaction = func(req internal.TransactionDBRequest) (int64, error) {
 			isDBInvoked = true
 			t.Run("DB data is as expected", func(t *testing.T) {
-				assert.Equal(t, expectedAccount, data["account_id"])
-				assert.Equal(t, expectedAmount, data["amount"])
-				assert.Equal(t, expectedCategory, data["category"])
+				assert.Equal(t, expectedAccount, req.AccountID)
+				assert.Equal(t, expectedAmount, req.Amount)
+				assert.Equal(t, expectedCategory, req.Category)
 			})
 			return 1, nil
 		}
@@ -95,11 +96,11 @@ func TestInsertTransactionWorksAsExpected(t *testing.T) {
 			t.Run("New balance is as expected", func(t *testing.T) {
 				assert.Equal(t, uwr.CurrentBalance, expectedNewBalance)
 			})
-			return nil, nil 
+			return nil, nil
 		}
-		wc.createWallet = func(c context.Context, cwr *pb.CreateWalletRequest, co ...grpc.CallOption) (*emptypb.Empty, error) {
+		wc.createWallet = func(c context.Context, cwr *pb.CreateWalletRequest, co ...grpc.CallOption) (*pb.CreateWalletResponse, error) {
 			isWalletCreateInvoked = true
-			return nil, nil 
+			return nil, nil
 		}
 
 	}
@@ -130,8 +131,8 @@ func TestInsertTransactionWorksAsExpected(t *testing.T) {
 	t.Run("Wallet create is not invoked", func(t *testing.T) {
 		assert.False(t, isWalletCreateInvoked)
 	})
-	t.Run("Http status code is 200", func(t *testing.T) {
-		assert.Equal(t, res.StatusCode, http.StatusOK)
+	t.Run("Http status code is 201", func(t *testing.T) {
+		assert.Equal(t, http.StatusOK, res.StatusCode)
 	})
 }
 

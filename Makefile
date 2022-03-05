@@ -7,12 +7,15 @@ build-local:
 test:
 	go test ./...
 
+clean:
+	rm -f $(OUTPUT)
+
 run: build-local
 	@echo ">> Running application ..."
-	DB_PORT=3306 \
-	DB_HOST=localhost \
-	DB_USER=root \
-	DB_PASSWORD=password \
-	DB_NAME=core \
+	DB_PORT= \
+	DB_HOST= \
+	DB_USER= \
+	DB_PASSWORD= \
+	DB_NAME= \
 	APP_PORT=9000 \
 	./$(OUTPUT)
